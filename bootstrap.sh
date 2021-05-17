@@ -72,7 +72,7 @@ else
     lxc exec $name -- systemctl restart apache2    
 fi
 
-if [[ $(lxc config device list haproxy) = http* ]];
+if [[ $(lxc config device list $name) = http* ]];
 then
     echo "-- [LXD] Ya se hace port forwarding --"
 else
