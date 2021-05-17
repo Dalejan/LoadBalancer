@@ -54,18 +54,23 @@ then
         lxc exec $name -- systemctl restart haproxy
     fi
 
-else  
-    echo "-- [APACHE] Se instala apache en el contenedor --"
-    no n | lxc exec $name -- apt update && apt upgrade
-    yes Y | lxc exec $name -- apt install apache2
-
-    echo "-- [APACHE] Se inicia el servicio de apache --"
-    lxc exec $name -- systemctl enable apache2
-
-    if [[ "$updateFiles" == "updateFiles" ]];
+else
+    if [[ $(lxc exec $name -- apache2 -v) ]];
     then
-        echo "-- [APACHE] Se asigna el index.html al contenedor $name --"
-        lxc file push /content/index.html $name/var/www/html/index.html
+        echo "-- [APACHE] Apache ya instalado version: $(lxc exec $name -- apache2 -v)"]
+    else
+        echo "-- [APACHE] Se instala apache en el contenedor --"
+        no n | lxc exec $name -- apt update && apt upgrade
+        yes Y | lxc exec $name -- apt-get install apache2
+
+        echo "-- [APACHE] Se inicia el servicio de apache --"
+        lxc exec $name -- systemctl enable apache2
+
+        if [[ "$updateFiles" == "updateFiles" ]];
+        then
+            echo "-- [APACHE] Se asigna el index.html al contenedor $name --"
+            lxc file push /content/index.html $name/var/www/html/index.html
+        fi
     fi
 
     echo "-- [APACHE] Se reinicia el servicio apache --"
